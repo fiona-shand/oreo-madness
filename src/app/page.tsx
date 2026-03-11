@@ -211,22 +211,26 @@ export default function Home() {
         )}
 
         {step === 'vote' && user && (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-[95vw] lg:max-w-screen-2xl mx-auto">
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-2">Make Your Picks</h2>
-              <p className="text-slate-400">Click any matchup to vote</p>
+              <p className="text-slate-400">Click any matchup to pick your winner</p>
             </div>
 
-            <Bracket votes={votes} onVoteChange={setVotes} />
+            <div className="w-full min-w-0">
+              <Bracket votes={votes} onVoteChange={setVotes} />
+            </div>
 
             {/* Save section */}
             {votes.length > 0 && (
               <div className="max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 space-y-4 border border-slate-700">
                 <h3 className="text-xl font-bold text-center">Save Your Bracket!</h3>
                 
-                {votes.length < matchups.length && (
+                {votes.length < 15 && (
                   <p className="text-center text-amber-400 text-sm">
-                    ⚠️ You've picked {votes.length}/{matchups.length} matchups
+                    {votes.length < 8
+                      ? `Pick all 8 Round of 16 matchups first`
+                      : `You've picked ${votes.length}/15 — complete the bracket to pick your champion!`}
                   </p>
                 )}
                 
@@ -270,18 +274,30 @@ export default function Home() {
             </div>
 
             <div className="bg-black/30 rounded-xl p-4">
-              <h3 className="font-bold mb-3 text-slate-300">Your Picks:</h3>
+              <h3 className="font-bold mb-3 text-slate-300">Your Bracket:</h3>
               <div className="space-y-2">
-                {votes.map((v, i) => {
-                  const match = matchups[i]
+                {votes.filter(v => v.matchupIndex < 8).map((v) => {
+                  const match = matchups[v.matchupIndex]
                   const winner = getOreoById(v.winnerId)
                   return (
-                    <div key={i} className="flex justify-between text-sm">
+                    <div key={v.matchupIndex} className="flex justify-between text-sm">
                       <span className="text-slate-400">{match.date}:</span>
-                      <span className="font-medium text-orange-400">{winner?.name}</span>
+                      <span className="font-medium text-orange-400">#{winner?.seed} {winner?.name}</span>
                     </div>
                   )
                 })}
+                {votes.some(v => v.matchupIndex === 14) && (() => {
+                  const champVote = votes.find(v => v.matchupIndex === 14)
+                  const champ = champVote ? getOreoById(champVote.winnerId) : null
+                  return champ ? (
+                    <div className="mt-4 pt-4 border-t border-slate-600">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Champion:</span>
+                        <span className="font-bold text-orange-400">#{champ.seed} {champ.name}</span>
+                      </div>
+                    </div>
+                  ) : null
+                })()}
               </div>
             </div>
 
