@@ -126,11 +126,11 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
 
   const boxWidth = 'w-60 min-w-60'
   const ConnectorV = () => <div className="w-10 shrink-0 border-r-2 border-slate-500 self-stretch" />
-  const bracketH = 880
-  const rowGap = 'gap-16'
+  const bracketH = 760
+  const rowGap = 'gap-12'
 
   return (
-    <div className="w-full py-16">
+    <div className="w-full py-8">
       <div className="overflow-x-auto flex justify-center min-w-0">
         <div className="flex items-stretch gap-0">
           {/* LEFT HALF */}

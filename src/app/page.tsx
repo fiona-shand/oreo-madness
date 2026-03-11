@@ -1,7 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import oreoLogo from '@/logo/oreoLogo.png'
 import { supabase } from '@/lib/supabase'
+import { calculateScore, getMaxPossibleScore } from '@/lib/scoring'
 import { matchups, getOreoById } from '@/lib/oreos'
 import Bracket from '@/components/Bracket'
 
@@ -28,6 +32,18 @@ export default function Home() {
   const [saved, setSaved] = useState(false)
   const [email, setEmail] = useState('')
   const [dbError, setDbError] = useState('')
+  const [officialResults, setOfficialResults] = useState<Record<number, number>>({})
+
+  // Fetch official bracket for score display
+  useEffect(() => {
+    supabase.from('official_bracket').select('matchup_index, winner_id').then(({ data }) => {
+      if (data) {
+        const map: Record<number, number> = {}
+        data.forEach((r) => { map[r.matchup_index] = r.winner_id })
+        setOfficialResults(map)
+      }
+    })
+  }, [])
 
   const checkUsername = async () => {
     if (!username.trim()) {
@@ -139,15 +155,24 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tight">
-            OREO MADNESS
-          </h1>
+        <div className="text-center mb-6">
+          <Link href="/">
+            <Image
+              src={oreoLogo}
+              alt="Oreo Madness"
+              width={oreoLogo.width}
+              height={oreoLogo.height}
+              className="mx-auto mb-2 h-auto w-auto max-h-40 md:max-h-52"
+              priority
+            />
+          </Link>
           <p className="text-slate-400 text-lg">Predict the Best Oreo Bracket</p>
+          <Link href="/leaderboard" className="text-orange-500 hover:underline text-sm mt-2 inline-block">View Leaderboard →</Link>
         </div>
 
+        <div style={{ zoom: 0.9 }} className="origin-top">
         {step === 'register' && (
           <div className="max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-slate-700">
             <h2 className="text-2xl font-bold mb-6 text-center">Create Your Bracket</h2>
@@ -263,7 +288,11 @@ export default function Home() {
           </div>
         )}
 
-        {step === 'results' && user && (
+        {step === 'results' && user && (() => {
+          const votesMap: Record<string, number> = {}
+          votes.forEach((v) => { votesMap[String(v.matchupIndex)] = v.winnerId })
+          const score = Object.keys(officialResults).length > 0 ? calculateScore(votesMap, officialResults) : null
+          return (
           <div className="max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 shadow-2xl space-y-6 border border-slate-700">
             <div className="text-center">
               <div className="text-6xl mb-4">🎉</div>
@@ -271,6 +300,9 @@ export default function Home() {
               <p className="text-slate-400">
                 Thanks {user.firstName}! Your predictions are in.
               </p>
+              {score !== null && (
+                <p className="text-orange-400 font-bold mt-2">Your score: {score} / {getMaxPossibleScore()}</p>
+              )}
             </div>
 
             <div className="bg-black/30 rounded-xl p-4">
@@ -307,14 +339,20 @@ export default function Home() {
               </p>
             )}
 
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium transition"
-            >
-              Start New Bracket
-            </button>
+            <div className="flex gap-2">
+              <Link href="/leaderboard" className="flex-1 py-3 bg-orange-500 hover:bg-orange-400 rounded-xl font-medium transition text-center">
+                Leaderboard
+              </Link>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium transition"
+              >
+                New Bracket
+              </button>
+            </div>
           </div>
-        )}
+        )})()}
+        </div>
       </div>
     </main>
   )
