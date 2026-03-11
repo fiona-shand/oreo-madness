@@ -155,29 +155,29 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white text-slate-900">
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-2">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <Link href="/">
             <Image
               src={oreoLogo}
               alt="Oreo Madness"
               width={oreoLogo.width}
               height={oreoLogo.height}
-              className="mx-auto mb-2 h-auto w-auto max-h-40 md:max-h-52"
+              className="mx-auto mb-1 h-auto w-auto max-h-24 md:max-h-28"
               priority
             />
           </Link>
-          <p className="text-slate-600 text-lg">Predict the Best Oreo Bracket</p>
+          <p className="text-slate-600 text-sm">Predict the Best Oreo Bracket</p>
           <Link href="/leaderboard" className="text-orange-500 hover:underline text-sm mt-2 inline-block">View Leaderboard →</Link>
         </div>
 
-        <div style={{ zoom: 0.9 }} className="origin-top">
+        <div style={{ zoom: 0.8 }} className="origin-top">
         {step === 'register' && (
-          <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-8 shadow-lg border border-slate-200">
-            <h2 className="text-2xl font-bold mb-6 text-center">Create Your Bracket</h2>
+          <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-5 shadow-lg border border-slate-200">
+            <h2 className="text-xl font-bold mb-4 text-center">Create Your Bracket</h2>
             
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium mb-2 text-slate-700">Username</label>
                 <input
@@ -186,7 +186,7 @@ export default function Home() {
                   onChange={(e) => setUsername(e.target.value.toLowerCase())}
                   onBlur={checkUsername}
                   placeholder=""
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                 />
                 {usernameError && (
                   <p className="text-red-400 text-sm mt-2">{usernameError}</p>
@@ -201,7 +201,7 @@ export default function Home() {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder=""
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                   />
                 </div>
                 <div>
@@ -211,7 +211,7 @@ export default function Home() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder=""
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                   />
                 </div>
               </div>
@@ -219,7 +219,7 @@ export default function Home() {
               <button
                 onClick={register}
                 disabled={!username || !firstName || !lastName}
-                className="w-full py-4 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-lg transition shadow-lg text-white"
+                className="w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-lg transition shadow-lg text-white"
               >
                 Start Picking!
               </button>
@@ -228,9 +228,9 @@ export default function Home() {
         )}
 
         {step === 'vote' && user && (
-          <div className="space-y-6 max-w-[95vw] lg:max-w-screen-2xl mx-auto">
+          <div className="space-y-4 max-w-[95vw] lg:max-w-screen-2xl mx-auto">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Make Your Picks</h2>
+              <h2 className="text-xl font-bold mb-1">Make Your Picks</h2>
               <p className="text-slate-600">Click any matchup to pick your winner</p>
             </div>
 
@@ -240,8 +240,8 @@ export default function Home() {
 
             {/* Save section */}
             {votes.length > 0 && (
-              <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-6 space-y-4 border border-slate-200 shadow-lg">
-                <h3 className="text-xl font-bold text-center">Save Your Bracket!</h3>
+              <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-4 space-y-3 border border-slate-200 shadow-lg">
+                <h3 className="text-lg font-bold text-center">Save Your Bracket!</h3>
                 
                 {votes.length < 15 && (
                   <p className="text-center text-amber-600 text-sm">
@@ -260,7 +260,7 @@ export default function Home() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder=""
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                   />
                 </div>
 
@@ -271,7 +271,7 @@ export default function Home() {
                 <button
                   onClick={saveBracket}
                   disabled={saving}
-                  className="w-full py-4 bg-green-500 hover:bg-green-400 disabled:bg-slate-300 rounded-xl font-bold text-lg transition shadow-lg text-white disabled:text-slate-500"
+                  className="w-full py-3 bg-green-500 hover:bg-green-400 disabled:bg-slate-300 rounded-xl font-bold text-lg transition shadow-lg text-white disabled:text-slate-500"
                 >
                   {saving ? 'Saving...' : 'Save Bracket'}
                 </button>
@@ -285,9 +285,9 @@ export default function Home() {
           votes.forEach((v) => { votesMap[String(v.matchupIndex)] = v.winnerId })
           const score = Object.keys(officialResults).length > 0 ? calculateScore(votesMap, officialResults) : null
           return (
-          <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-8 shadow-lg space-y-6 border border-slate-200">
+          <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-5 shadow-lg space-y-4 border border-slate-200">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Bracket Saved!</h2>
+              <h2 className="text-xl font-bold mb-1">Bracket Saved!</h2>
               <p className="text-slate-600">
                 Thanks {user.firstName}! Your predictions are in.
               </p>
@@ -296,9 +296,9 @@ export default function Home() {
               )}
             </div>
 
-            <div className="bg-slate-100 rounded-xl p-4 border border-slate-200">
-              <h3 className="font-bold mb-3 text-slate-800">Your Bracket:</h3>
-              <div className="space-y-3">
+            <div className="bg-slate-100 rounded-xl p-3 border border-slate-200">
+              <h3 className="font-bold mb-2 text-slate-800 text-sm">Your Bracket:</h3>
+              <div className="space-y-2">
                 {votes.filter(v => v.matchupIndex < 8).map((v) => {
                   const match = matchups[v.matchupIndex]
                   const winner = getOreoById(v.winnerId)
@@ -343,12 +343,12 @@ export default function Home() {
             )}
 
             <div className="flex gap-2">
-                <Link href="/leaderboard" className="flex-1 py-3 bg-orange-500 hover:bg-orange-400 rounded-xl font-medium transition text-center text-white">
+                <Link href="/leaderboard" className="flex-1 py-2 bg-orange-500 hover:bg-orange-400 rounded-xl font-medium transition text-center text-white">
                 Leaderboard
               </Link>
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-medium transition"
+                className="flex-1 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-medium transition"
               >
                 New Bracket
               </button>

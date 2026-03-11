@@ -88,7 +88,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
     if (!o) return <div className="text-slate-500 text-center">TBD</div>
     return (
       <div className={`flex items-center justify-center gap-2 ${isWinner ? 'text-orange-600 font-bold' : 'text-slate-700'}`}>
-        {img && <Image src={img} alt={o.name} width={24} height={24} className="rounded-[5px] object-cover shrink-0" />}
+        {img && <Image src={img} alt={o.name} width={18} height={18} className="rounded-[5px] object-cover shrink-0" />}
         <span><span className="text-slate-500 font-medium">#{o.seed}</span> {o.name}</span>
       </div>
     )
@@ -119,7 +119,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
         onClick={() => !disabled && setSelectedMatchup({ round, idx, seed1, seed2 })}
         disabled={disabled}
         className={`
-          ${boxWidth} p-4 rounded-2xl border text-sm leading-snug transition-all
+          ${boxWidth} p-2 rounded-xl border text-xs leading-snug transition-all
           ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
           ${winner ? 'border-green-500 bg-green-100' : 'border-slate-300 bg-white hover:border-orange-500'}
         `}
@@ -133,39 +133,39 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
     )
   }
 
-  const boxWidth = 'w-60 min-w-60'
-  const ConnectorV = () => <div className="w-10 shrink-0 border-r-2 border-slate-300 self-stretch" />
-  const bracketH = 760
-  const rowGap = 'gap-12'
+  const boxWidth = 'w-44 min-w-44'
+  const ConnectorV = () => <div className="w-6 shrink-0 border-r-2 border-slate-300 self-stretch" />
+  const bracketH = 560
+  const rowGap = 'gap-6'
 
   return (
-    <div className="w-full py-8">
+    <div className="w-full py-4">
       <div className="overflow-x-auto flex justify-center min-w-0">
         <div className="flex items-stretch gap-0">
           {/* LEFT HALF */}
           <div className="flex items-center shrink-0 gap-0">
             <div className={`flex flex-col justify-around ${rowGap}`} style={{ height: bracketH }}>
               {matchups.slice(0, 4).map((m, i) => (
-                <div key={i} className="h-28 flex items-center">
+                <div key={i} className="h-20 flex items-center">
                   <MatchupBox round="r16" idx={i} seed1={m.seed1} seed2={m.seed2} />
                 </div>
               ))}
             </div>
             <ConnectorV />
-            <div className={`flex flex-col justify-around pl-12 ${rowGap}`} style={{ height: bracketH }}>
+            <div className={`flex flex-col justify-around pl-8 ${rowGap}`} style={{ height: bracketH }}>
               {[0, 1].map((i) => {
                 const enabled = i === 0 ? qf0Enabled : qf1Enabled
                 const [s1, s2] = enabled ? getQFMatchup(i) : [0, 0]
                 return (
-                  <div key={i} className="h-28 flex items-center">
+                  <div key={i} className="h-20 flex items-center">
                     <MatchupBox round="qf" idx={i} seed1={s1} seed2={s2} disabled={!enabled} />
                   </div>
                 )
               })}
             </div>
             <ConnectorV />
-            <div className={`flex flex-col justify-around pl-12 ${rowGap}`} style={{ height: bracketH }}>
-              <div className="h-28 flex items-center">
+            <div className={`flex flex-col justify-around pl-8 ${rowGap}`} style={{ height: bracketH }}>
+              <div className="h-20 flex items-center">
                 {(() => {
                   const [s1, s2] = sf0Enabled ? getSFMatchup(0) : [0, 0]
                   return <MatchupBox round="sf" idx={0} seed1={s1} seed2={s2} disabled={!sf0Enabled} matchupIndex={12} />
@@ -175,48 +175,51 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
           </div>
 
           {/* CENTER - Championship: 1 (left) vs 1 (right) */}
-          <div className="flex flex-col items-center justify-center px-12 shrink-0 border-x-2 border-slate-300 mx-16">
-            <div className="h-28 flex items-center">
-              {(() => {
-                const [s1, s2] = finalEnabled ? getFinalMatchup() : [0, 0]
-                return (
-                  <MatchupBox
-                    round="final"
-                    idx={0}
-                    seed1={s1}
-                    seed2={s2}
-                    disabled={!finalEnabled}
-                    matchupIndex={14}
-                  />
-                )
-              })()}
+          <div className="flex flex-col items-center justify-center px-8 shrink-0 border-x-2 border-slate-300 mx-8">
+            <div className="h-20 flex flex-col items-center justify-center gap-1">
+              <div className="rounded-lg border-2 border-orange-500 bg-orange-50 px-4 py-2 flex flex-col items-center gap-1">
+                <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">WINNER</span>
+                {(() => {
+                  const [s1, s2] = finalEnabled ? getFinalMatchup() : [0, 0]
+                  return (
+                    <MatchupBox
+                      round="final"
+                      idx={0}
+                      seed1={s1}
+                      seed2={s2}
+                      disabled={!finalEnabled}
+                      matchupIndex={14}
+                    />
+                  )
+                })()}
+              </div>
             </div>
           </div>
 
           {/* RIGHT HALF */}
           <div className="flex items-center shrink-0 gap-0">
-            <div className={`flex flex-col justify-center pr-12 ${rowGap}`} style={{ height: bracketH }}>
+            <div className={`flex flex-col justify-center pr-8 ${rowGap}`} style={{ height: bracketH }}>
               {(() => {
                 const [s1, s2] = sf1Enabled ? getSFMatchup(1) : [0, 0]
                 return <MatchupBox round="sf" idx={1} seed1={s1} seed2={s2} disabled={!sf1Enabled} matchupIndex={13} />
               })()}
             </div>
-            <div className="w-10 shrink-0 border-l-2 border-slate-300 self-stretch" />
-            <div className={`flex flex-col justify-around pr-12 ${rowGap}`} style={{ height: bracketH }}>
+            <div className="w-6 shrink-0 border-l-2 border-slate-300 self-stretch" />
+            <div className={`flex flex-col justify-around pr-8 ${rowGap}`} style={{ height: bracketH }}>
               {[2, 3].map((i) => {
                 const enabled = i === 2 ? qf2Enabled : qf3Enabled
                 const [s1, s2] = enabled ? getQFMatchup(i) : [0, 0]
                 return (
-                  <div key={i} className="h-28 flex items-center">
+                  <div key={i} className="h-20 flex items-center">
                     <MatchupBox round="qf" idx={i} seed1={s1} seed2={s2} disabled={!enabled} />
                   </div>
                 )
               })}
             </div>
-            <div className="w-10 shrink-0 border-l-2 border-slate-300 self-stretch" />
+            <div className="w-6 shrink-0 border-l-2 border-slate-300 self-stretch" />
             <div className={`flex flex-col justify-around ${rowGap}`} style={{ height: bracketH }}>
               {matchups.slice(4, 8).map((m, i) => (
-                <div key={i} className="h-28 flex items-center">
+                <div key={i} className="h-20 flex items-center">
                   <MatchupBox round="r16" idx={i + 4} seed1={m.seed1} seed2={m.seed2} />
                 </div>
               ))}
@@ -258,7 +261,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
         </div>
       )}
 
-      <div className="text-center mt-6 text-slate-600 text-sm">
+      <div className="text-center mt-4 text-slate-600 text-xs">
         Picks: {votes.length} / 15
         {votes.length < 15 && ' · Complete matchups on each side to unlock the next round'}
       </div>
