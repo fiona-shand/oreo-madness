@@ -11,7 +11,8 @@ type Vote = {
 
 type BracketProps = {
   votes: Vote[]
-  onVoteChange: (votes: Vote[]) => void
+  onVoteChange?: (votes: Vote[]) => void
+  readOnly?: boolean
 }
 
 const matchups = [
@@ -25,7 +26,7 @@ const matchups = [
   { idx: 7, date: 'Mar 25', seed1: 2, seed2: 16 },
 ]
 
-export default function Bracket({ votes, onVoteChange }: BracketProps) {
+export default function Bracket({ votes, onVoteChange, readOnly = false }: BracketProps) {
   const [selectedMatchup, setSelectedMatchup] = useState<{round: string, idx: number, seed1: number, seed2: number} | null>(null)
 
   const getModalTitle = () => {
@@ -67,7 +68,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
   const finalEnabled = hasPick(12) && hasPick(13)
 
   const handlePick = (winnerId: number) => {
-    if (!selectedMatchup) return
+    if (!selectedMatchup || !onVoteChange) return
     const { round, idx } = selectedMatchup
 
     let matchupIndex: number
@@ -114,14 +115,16 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
     const o1 = getOreoById(seed1)
     const o2 = getOreoById(seed2)
 
+    const Wrapper = readOnly ? 'div' : 'button'
     return (
-      <button
-        onClick={() => !disabled && setSelectedMatchup({ round, idx, seed1, seed2 })}
-        disabled={disabled}
+      <Wrapper
+        onClick={readOnly ? undefined : () => !disabled && setSelectedMatchup({ round, idx, seed1, seed2 })}
+        disabled={readOnly ? undefined : disabled}
         className={`
           ${boxWidth} p-2 rounded-xl border text-xs leading-snug transition-all
-          ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-          ${winner ? 'border-green-500 bg-green-100' : 'border-slate-300 bg-white hover:border-orange-500'}
+          ${readOnly ? '' : disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+          ${winner ? 'border-green-500 bg-green-100' : 'border-slate-300 bg-white'}
+          ${!readOnly && !disabled ? 'hover:border-orange-500' : ''}
         `}
       >
         <div className="flex flex-col gap-1">
@@ -129,7 +132,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
           <div className="text-slate-500 text-xs text-center">vs</div>
           <OreoLine id={seed2} isWinner={winner === (o2?.id ?? seed2)} />
         </div>
-      </button>
+      </Wrapper>
     )
   }
 
@@ -261,10 +264,12 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
         </div>
       )}
 
-      <div className="text-center mt-4 text-slate-600 text-xs">
-        Picks: {votes.length} / 15
-        {votes.length < 15 && ' · Complete matchups on each side to unlock the next round'}
-      </div>
+      {!readOnly && (
+        <div className="text-center mt-4 text-slate-600 text-xs">
+          Picks: {votes.length} / 15
+          {votes.length < 15 && ' · Complete matchups on each side to unlock the next round'}
+        </div>
+      )}
     </div>
   )
 }

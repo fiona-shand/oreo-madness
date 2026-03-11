@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import oreoLogo from '@/logo/oreoLogo.png'
-import { getOreoById } from '@/lib/oreos'
 
 type Participant = {
   id: string
@@ -20,6 +19,11 @@ export default function LeaderboardPage() {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [hasOfficialResults, setHasOfficialResults] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [myUsername, setMyUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    setMyUsername(typeof window !== 'undefined' ? localStorage.getItem('oreoUsername') : null)
+  }, [])
 
   useEffect(() => {
     async function fetchData() {
@@ -43,7 +47,15 @@ export default function LeaderboardPage() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
       <div className="w-full max-w-[95vw] lg:max-w-screen-2xl mx-auto px-6 py-8">
-        <div className="text-center mb-8">
+        <div className="relative text-center mb-8">
+          {myUsername && (
+            <Link
+              href={`/bracket/${encodeURIComponent(myUsername)}`}
+              className="absolute right-0 top-0 text-orange-500 hover:underline text-sm"
+            >
+              My bracket
+            </Link>
+          )}
           <Link href="/">
             <Image src={oreoLogo} alt="Oreo Madness" width={oreoLogo.width} height={oreoLogo.height} className="mx-auto mb-2 h-auto w-auto max-h-32" priority />
           </Link>
@@ -72,19 +84,29 @@ export default function LeaderboardPage() {
                       <th className="text-left py-4 px-4 font-bold">Name</th>
                       <th className="text-left py-4 px-4 font-bold">Username</th>
                       {hasOfficialResults && <th className="text-right py-4 px-4 font-bold">Points</th>}
+                      <th className="text-left py-4 px-4 font-bold"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {participants.map((p, i) => (
-                      <tr key={p.id} className="border-b border-slate-200 last:border-0">
+                      <tr key={p.id} className="border-b border-slate-200 last:border-0 hover:bg-slate-100 transition-colors">
                         <td className="py-3 px-4 text-slate-600">{i + 1}</td>
                         <td className="py-3 px-4 font-medium">{p.first_name} {p.last_name}</td>
-                        <td className="py-3 px-4 text-slate-600">@{p.username}</td>
+                        <td className="py-3 px-4">
+                          <Link href={`/bracket/${encodeURIComponent(p.username)}`} className="text-orange-500 hover:underline">
+                            @{p.username}
+                          </Link>
+                        </td>
                         {hasOfficialResults && (
                           <td className="py-3 px-4 text-right">
                             <span className="text-orange-400 font-bold">{p.score ?? 0}</span>
                           </td>
                         )}
+                        <td className="py-3 px-4">
+                          <Link href={`/bracket/${encodeURIComponent(p.username)}`} className="text-orange-500 hover:underline text-sm">
+                            View bracket
+                          </Link>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

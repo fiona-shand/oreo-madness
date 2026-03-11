@@ -34,6 +34,11 @@ export default function Home() {
   const [officialResults, setOfficialResults] = useState<Record<number, number>>({})
 
   const confettiFired = useRef(false)
+  const [myUsername, setMyUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    setMyUsername(typeof window !== 'undefined' ? localStorage.getItem('oreoUsername') : null)
+  }, [])
 
   // Fetch official bracket for score display
   useEffect(() => {
@@ -150,6 +155,7 @@ export default function Home() {
 
       if (error) {
         console.error('Supabase error:', error)
+        localStorage.setItem('oreoUsername', user.username)
         // Try saving to localStorage as fallback
         const localData = {
           username: user.username,
@@ -160,13 +166,17 @@ export default function Home() {
           savedAt: new Date().toISOString()
         }
         localStorage.setItem('oreoBracket', JSON.stringify(localData))
+        setMyUsername(user.username)
         setSaved(true)
         setStep('results')
       } else {
+        localStorage.setItem('oreoUsername', user.username)
+        setMyUsername(user.username)
         setSaved(true)
         setStep('results')
       }
     } catch (e) {
+      localStorage.setItem('oreoUsername', user.username)
       // Save to localStorage as fallback
       const localData = {
         username: user.username,
@@ -177,6 +187,7 @@ export default function Home() {
         savedAt: new Date().toISOString()
       }
       localStorage.setItem('oreoBracket', JSON.stringify(localData))
+      setMyUsername(user.username)
       setSaved(true)
       setStep('results')
     }
@@ -187,7 +198,15 @@ export default function Home() {
     <main className="min-h-screen bg-white text-slate-900 w-full">
       <div className="w-full max-w-[100vw] mx-auto px-2 sm:px-4 py-2">
         {/* Header */}
-        <div className="text-center mb-4">
+        <div className="relative text-center mb-4">
+          {myUsername && (
+            <Link
+              href={`/bracket/${encodeURIComponent(myUsername)}`}
+              className="absolute right-0 top-0 text-orange-500 hover:underline text-sm"
+            >
+              My bracket
+            </Link>
+          )}
           <Link href="/">
             <Image
               src={oreoLogo}
