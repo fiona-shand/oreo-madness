@@ -88,40 +88,37 @@ export default function AdminPage() {
     setSaved(false)
     setSaveError('')
     try {
-      const rows = []
+      const rows: { matchup_index: number; winner_id: number }[] = []
       for (let i = 0; i <= 14; i++) {
         const winnerId = officialResults[i]
         if (winnerId) {
-          rows.push({
-            matchup_index: i,
-            winner_id: winnerId,
-            updated_at: new Date().toISOString(),
-          })
+          rows.push({ matchup_index: i, winner_id: winnerId })
         }
       }
-      const { error } = await supabase
-        .from('official_bracket')
-        .upsert(rows, { onConflict: 'matchup_index' })
+      const res = await fetch('/api/admin/save-official-bracket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rows }),
+      })
+      const data = await res.json().catch(() => ({}))
 
-      if (error) {
-        const msg = error.message.toLowerCase().includes('does not exist') || error.code === '42P01'
-          ? 'official_bracket table not found. Run supabase-official-bracket.sql in Supabase SQL Editor.'
-          : error.message
+      if (!res.ok) {
+        const msg = data.error || (res.status === 401 ? 'Session expired. Please log in again.' : 'Save failed')
         setSaveError(msg)
         return
       }
       setSaved(true)
-      // Refetch to confirm save
-      const { data } = await supabase.from('official_bracket').select('matchup_index, winner_id')
-      if (data) {
+      // Refetch to confirm save (read-only, still uses anon client)
+      const { data: refetch } = await supabase.from('official_bracket').select('matchup_index, winner_id')
+      if (refetch) {
         const map: Record<number, number> = {}
-        data.forEach((r) => { map[r.matchup_index] = r.winner_id })
+        refetch.forEach((r) => { map[r.matchup_index] = r.winner_id })
         setOfficialResults(map)
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Save failed'
       if (msg.toLowerCase().includes('load failed') || msg.toLowerCase().includes('fetch failed')) {
-        setSaveError('Network error. Check: 1) Supabase project not paused (restore in dashboard), 2) NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local')
+        setSaveError('Network error. Check: 1) Supabase project not paused (restore in dashboard), 2) Env vars in .env.local')
       } else {
         setSaveError(msg)
       }
@@ -140,7 +137,7 @@ export default function AdminPage() {
   if (!authenticated) {
     return (
       <main className="min-h-screen bg-white text-slate-900">
-        <div className="container mx-auto px-4 py-8">
+        <div className="w-full max-w-[95vw] lg:max-w-screen-2xl mx-auto px-6 py-8">
           <div className="text-center mb-8">
             <Link href="/">
               <Image src={oreoLogo} alt="Oreo Madness" width={oreoLogo.width} height={oreoLogo.height} className="mx-auto mb-2 h-auto w-auto max-h-32" priority />
@@ -149,7 +146,7 @@ export default function AdminPage() {
             <p className="text-slate-600 text-sm mt-1">Enter password to set official bracket</p>
           </div>
 
-          <form onSubmit={handleLogin} className="max-w-sm mx-auto bg-slate-50 rounded-2xl p-8 border border-slate-200 shadow-lg space-y-4">
+          <form onSubmit={handleLogin} className="max-w-md mx-auto bg-slate-50 rounded-2xl p-8 border border-slate-200 shadow-lg space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2 text-slate-700">Password</label>
               <input
@@ -177,7 +174,7 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen bg-white text-slate-900">
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full max-w-[95vw] lg:max-w-screen-2xl mx-auto px-6 py-8">
         <div className="text-center mb-8">
           <Link href="/">
             <Image src={oreoLogo} alt="Oreo Madness" width={oreoLogo.width} height={oreoLogo.height} className="mx-auto mb-2 h-auto w-auto max-h-32" priority />
@@ -192,7 +189,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-6 border border-slate-200 shadow-lg">
+        <div className="max-w-xl mx-auto bg-slate-50 rounded-2xl p-6 border border-slate-200 shadow-lg">
           <div className="space-y-4">
             {[...Array(15)].map((_, i) => (
               <div key={i} className="flex items-center gap-3">

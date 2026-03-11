@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import oreoLogo from '@/logo/oreoLogo.png'
 import { supabase } from '@/lib/supabase'
-import { calculateScore } from '@/lib/scoring'
-import { matchups, getOreoById, getOreoImageById } from '@/lib/oreos'
+import { getOreoById, getOreoImageById } from '@/lib/oreos'
 import Bracket from '@/components/Bracket'
 
 type User = {
@@ -34,6 +33,8 @@ export default function Home() {
   const [dbError, setDbError] = useState('')
   const [officialResults, setOfficialResults] = useState<Record<number, number>>({})
 
+  const confettiFired = useRef(false)
+
   // Fetch official bracket for score display
   useEffect(() => {
     supabase.from('official_bracket').select('matchup_index, winner_id').then(({ data }) => {
@@ -44,6 +45,35 @@ export default function Home() {
       }
     })
   }, [])
+
+  // Fire confetti instantly when results screen appears (script preloaded in layout)
+  useEffect(() => {
+    if (step !== 'results' || confettiFired.current) return
+    confettiFired.current = true
+
+    try {
+      const confettiFn = (window as unknown as { confetti?: (opts: object) => void }).confetti
+      if (typeof confettiFn !== 'function') return
+
+      const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa', '#fff7ed']
+      const duration = 3 * 1000
+      const end = Date.now() + duration
+
+      const frame = () => {
+        if (Date.now() > end) return
+        try {
+          confettiFn({ particleCount: 4, angle: 60, spread: 55, startVelocity: 50, origin: { x: 0.2, y: 0.5 }, colors })
+          confettiFn({ particleCount: 4, angle: 120, spread: 55, startVelocity: 50, origin: { x: 0.8, y: 0.5 }, colors })
+        } catch {
+          // ignore confetti errors
+        }
+        requestAnimationFrame(frame)
+      }
+      frame()
+    } catch {
+      // confetti not available or failed - continue without it
+    }
+  }, [step])
 
   const checkUsername = async () => {
     if (!username.trim()) {
@@ -154,8 +184,8 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-slate-900">
-      <div className="container mx-auto px-4 py-2">
+    <main className="min-h-screen bg-white text-slate-900 w-full">
+      <div className="w-full max-w-[100vw] mx-auto px-2 sm:px-4 py-2">
         {/* Header */}
         <div className="text-center mb-4">
           <Link href="/">
@@ -172,9 +202,9 @@ export default function Home() {
           <Link href="/leaderboard" className="text-orange-500 hover:underline text-sm mt-2 inline-block">View Leaderboard →</Link>
         </div>
 
-        <div style={{ zoom: 0.8 }} className="origin-top">
+        <div className="origin-top">
         {step === 'register' && (
-          <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-5 shadow-lg border border-slate-200">
+          <div className="max-w-xl mx-auto bg-slate-50 rounded-2xl p-5 shadow-lg border border-slate-200">
             <h2 className="text-xl font-bold mb-4 text-center">Create Your Bracket</h2>
             
             <div className="space-y-3">
@@ -228,19 +258,19 @@ export default function Home() {
         )}
 
         {step === 'vote' && user && (
-          <div className="space-y-4 max-w-[95vw] lg:max-w-screen-2xl mx-auto">
+          <div className="space-y-4 w-full max-w-[100vw] overflow-x-auto">
             <div className="text-center">
               <h2 className="text-xl font-bold mb-1">Make Your Picks</h2>
               <p className="text-slate-600">Click any matchup to pick your winner</p>
             </div>
 
-            <div className="w-full min-w-0">
+            <div className="w-full min-w-max">
               <Bracket votes={votes} onVoteChange={setVotes} />
             </div>
 
             {/* Save section */}
             {votes.length > 0 && (
-              <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-4 space-y-3 border border-slate-200 shadow-lg">
+              <div className="max-w-xl mx-auto bg-slate-50 rounded-2xl p-4 space-y-3 border border-slate-200 shadow-lg">
                 <h3 className="text-lg font-bold text-center">Save Your Bracket!</h3>
                 
                 {votes.length < 15 && (
@@ -281,80 +311,43 @@ export default function Home() {
         )}
 
         {step === 'results' && user && (() => {
-          const votesMap: Record<string, number> = {}
-          votes.forEach((v) => { votesMap[String(v.matchupIndex)] = v.winnerId })
-          const score = Object.keys(officialResults).length > 0 ? calculateScore(votesMap, officialResults) : null
-          return (
-          <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-5 shadow-lg space-y-4 border border-slate-200">
-            <div className="text-center">
-              <h2 className="text-xl font-bold mb-1">Bracket Saved!</h2>
-              <p className="text-slate-600">
-                Thanks {user.firstName}! Your predictions are in.
-              </p>
-              {score !== null && (
-                <p className="text-orange-400 font-bold mt-2">Your points: {score}</p>
-              )}
-            </div>
-
-            <div className="bg-slate-100 rounded-xl p-3 border border-slate-200">
-              <h3 className="font-bold mb-2 text-slate-800 text-sm">Your Bracket:</h3>
-              <div className="space-y-2">
-                {votes.filter(v => v.matchupIndex < 8).map((v) => {
-                  const match = matchups[v.matchupIndex]
-                  const winner = getOreoById(v.winnerId)
-                  const winnerImg = getOreoImageById(v.winnerId)
-                  return (
-                    <div key={v.matchupIndex} className="flex items-center justify-between gap-3">
-                      <span className="text-slate-600 text-sm shrink-0">{match.date}:</span>
-                      <div className="flex items-center gap-2 min-w-0">
-                        {winnerImg && (
-                          <Image src={winnerImg} alt={winner?.name ?? ''} width={32} height={32} className="rounded-[5px] object-cover shrink-0" />
-                        )}
-                        <span className="font-medium text-orange-400 truncate">#{winner?.seed} {winner?.name}</span>
-                      </div>
+          try {
+            const champVote = votes.find(v => v.matchupIndex === 14)
+            const winnerId = champVote ? Number(champVote.winnerId) : undefined
+            const champ = winnerId != null ? getOreoById(winnerId) : null
+            const champImg = winnerId != null ? getOreoImageById(winnerId) : null
+            if (!champ || !champImg) return <p className="text-center text-slate-600 py-8">Complete your bracket to pick a champion.</p>
+            return (
+              <div className="relative min-h-[75vh] flex flex-col items-center justify-center py-12 px-4">
+                <div className="absolute inset-0 bg-gradient-to-b from-orange-50 via-white to-amber-50" />
+                <div className="relative flex flex-col items-center gap-8 max-w-3xl mx-auto animate-champion-reveal">
+                  <div className="text-center space-y-2">
+                    <p className="text-orange-500 font-bold text-sm uppercase tracking-[0.2em]">Bracket complete</p>
+                    <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">YOUR CHAMPION</h2>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-orange-400 to-amber-500 rounded-3xl blur-xl opacity-30" />
+                    <div className="relative rounded-2xl border-4 border-orange-500 bg-white p-8 shadow-2xl ring-4 ring-orange-200/50">
+                      <Image src={champImg} alt={champ.name} width={220} height={220} className="rounded-[5px] object-cover mx-auto" />
                     </div>
-                  )
-                })}
-                {votes.some(v => v.matchupIndex === 14) && (() => {
-                  const champVote = votes.find(v => v.matchupIndex === 14)
-                  const champ = champVote ? getOreoById(champVote.winnerId) : null
-                  const champImg = champVote ? getOreoImageById(champVote.winnerId) : null
-                  return champ ? (
-                    <div className="mt-4 pt-4 border-t border-slate-200">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-600 text-sm">Champion:</span>
-                        <div className="flex items-center gap-2">
-                          {champImg && (
-                            <Image src={champImg} alt={champ.name} width={40} height={40} className="rounded-[5px] object-cover shrink-0 ring-2 ring-orange-500" />
-                          )}
-                          <span className="font-bold text-orange-400">#{champ.seed} {champ.name}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : null
-                })()}
+                  </div>
+                  <div className="text-center space-y-1">
+                    <p className="text-3xl md:text-4xl font-black text-orange-600">#{champ.seed} {champ.name}</p>
+                    <p className="text-slate-500 font-medium">The undisputed winner</p>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {email && (
-              <p className="text-center text-sm text-slate-600">
-                Copy will be sent to {email}
-              </p>
-            )}
-
-            <div className="flex gap-2">
-                <Link href="/leaderboard" className="flex-1 py-2 bg-orange-500 hover:bg-orange-400 rounded-xl font-medium transition text-center text-white">
-                Leaderboard
-              </Link>
-              <button
-                onClick={() => window.location.reload()}
-                className="flex-1 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-medium transition"
-              >
-                New Bracket
-              </button>
-            </div>
-          </div>
-        )})()}
+            )
+          } catch (e) {
+            console.error('Results render error:', e)
+            return (
+              <div className="py-12 text-center">
+                <p className="text-slate-600 mb-4">Bracket saved! Thanks for playing.</p>
+                <Link href="/leaderboard" className="text-orange-500 hover:underline">View Leaderboard</Link>
+              </div>
+            )
+          }
+        })()}
         </div>
       </div>
     </main>

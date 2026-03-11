@@ -44,21 +44,9 @@ CREATE INDEX IF NOT EXISTS idx_participants_username ON participants(username);
 CREATE INDEX IF NOT EXISTS idx_participants_created_at ON participants(created_at DESC);
 ```
 
-4. Run the **official bracket** table (for comparing brackets to real winners). In a new query, run `supabase-official-bracket.sql` or:
+4. Run the **official bracket** table. In a new query, run `supabase-official-bracket.sql`. Click **Run** (or Cmd+Enter).
 
-```sql
-CREATE TABLE IF NOT EXISTS official_bracket (
-  matchup_index INTEGER PRIMARY KEY,
-  winner_id INTEGER NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-ALTER TABLE official_bracket ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read official_bracket" ON official_bracket FOR SELECT USING (true);
-CREATE POLICY "Allow public insert official_bracket" ON official_bracket FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update official_bracket" ON official_bracket FOR UPDATE USING (true);
-```
-
-5. Click **Run** (or press Cmd+Enter).
+5. **Secure the bracket (recommended):** Run `supabase-secure-official-bracket.sql` to remove public write access. After this, only the admin can set official results (prevents score tampering). Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` from Supabase → Settings → API → `service_role` secret.
 
 ---
 

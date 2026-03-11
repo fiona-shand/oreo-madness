@@ -140,7 +140,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
 
   return (
     <div className="w-full py-4">
-      <div className="overflow-x-auto flex justify-center min-w-0">
+      <div className="overflow-x-auto flex justify-center min-w-max">
         <div className="flex items-stretch gap-0">
           {/* LEFT HALF */}
           <div className="flex items-center shrink-0 gap-0">
@@ -231,7 +231,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
       {/* Modal */}
       {selectedMatchup && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full border border-slate-200 shadow-xl">
+          <div className="bg-white rounded-2xl p-8 max-w-lg w-full border border-slate-200 shadow-xl">
             <h3 className="text-xl font-bold mb-2 text-center text-slate-900">{getModalTitle()}</h3>
             <p className="text-slate-600 text-center mb-6">Who wins?</p>
             <div className="flex gap-4">
