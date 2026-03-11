@@ -217,7 +217,7 @@ export default function AdminPage() {
             disabled={saving}
             className="mt-6 w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-300 rounded-xl font-bold transition text-white disabled:text-slate-500"
           >
-            {saving ? 'Saving...' : saved ? 'Saved to database ✓' : 'Save to Database'}
+            {saving ? 'Saving...' : saved ? 'Saved to database' : 'Save to Database'}
           </button>
         </div>
       </div>

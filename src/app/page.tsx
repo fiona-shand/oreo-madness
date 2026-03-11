@@ -221,7 +221,7 @@ export default function Home() {
                 disabled={!username || !firstName || !lastName}
                 className="w-full py-4 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-lg transition shadow-lg text-white"
               >
-                Start Picking! 🎯
+                Start Picking!
               </button>
             </div>
           </div>
@@ -273,7 +273,7 @@ export default function Home() {
                   disabled={saving}
                   className="w-full py-4 bg-green-500 hover:bg-green-400 disabled:bg-slate-300 rounded-xl font-bold text-lg transition shadow-lg text-white disabled:text-slate-500"
                 >
-                  {saving ? 'Saving...' : 'Save Bracket 💾'}
+                  {saving ? 'Saving...' : 'Save Bracket'}
                 </button>
               </div>
             )}
@@ -287,7 +287,6 @@ export default function Home() {
           return (
           <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-8 shadow-lg space-y-6 border border-slate-200">
             <div className="text-center">
-              <div className="text-6xl mb-4">🎉</div>
               <h2 className="text-2xl font-bold mb-2">Bracket Saved!</h2>
               <p className="text-slate-600">
                 Thanks {user.firstName}! Your predictions are in.
@@ -339,7 +338,7 @@ export default function Home() {
 
             {email && (
               <p className="text-center text-sm text-slate-600">
-                📧 Copy will be sent to {email}
+                Copy will be sent to {email}
               </p>
             )}
 
