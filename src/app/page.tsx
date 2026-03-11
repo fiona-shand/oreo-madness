@@ -185,7 +185,7 @@ export default function Home() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase())}
                   onBlur={checkUsername}
-                  placeholder="your_username"
+                  placeholder=""
                   className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                 />
                 {usernameError && (
@@ -200,7 +200,7 @@ export default function Home() {
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Fiona"
+                    placeholder=""
                     className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                   />
                 </div>
@@ -210,7 +210,7 @@ export default function Home() {
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Hand"
+                    placeholder=""
                     className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                   />
                 </div>
@@ -259,7 +259,7 @@ export default function Home() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
+                    placeholder=""
                     className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none placeholder-slate-400 text-slate-900"
                   />
                 </div>
