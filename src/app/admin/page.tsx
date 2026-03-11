@@ -131,33 +131,33 @@ export default function AdminPage() {
 
   if (authenticated === null) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center">
-        <p className="text-slate-400">Loading...</p>
+      <main className="min-h-screen bg-white text-slate-900 flex items-center justify-center">
+        <p className="text-slate-600">Loading...</p>
       </main>
     )
   }
 
   if (!authenticated) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+      <main className="min-h-screen bg-white text-slate-900">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center mb-8">
             <Link href="/">
               <Image src={oreoLogo} alt="Oreo Madness" width={oreoLogo.width} height={oreoLogo.height} className="mx-auto mb-2 h-auto w-auto max-h-32" priority />
             </Link>
             <h1 className="text-2xl font-bold text-orange-500">Admin Login</h1>
-            <p className="text-slate-400 text-sm mt-1">Enter password to set official bracket</p>
+            <p className="text-slate-600 text-sm mt-1">Enter password to set official bracket</p>
           </div>
 
-          <form onSubmit={handleLogin} className="max-w-sm mx-auto bg-slate-800/50 rounded-2xl p-8 border border-slate-700 space-y-4">
+          <form onSubmit={handleLogin} className="max-w-sm mx-auto bg-slate-50 rounded-2xl p-8 border border-slate-200 shadow-lg space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2 text-slate-300">Password</label>
+              <label className="block text-sm font-medium mb-2 text-slate-700">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Admin password"
-                className="w-full px-4 py-3 rounded-xl bg-slate-700 border border-slate-600 focus:border-orange-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none text-slate-900"
                 autoFocus
               />
             </div>
@@ -165,7 +165,7 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-600 rounded-xl font-bold transition"
+              className="w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-300 rounded-xl font-bold transition text-white disabled:text-slate-500"
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
@@ -176,31 +176,31 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <main className="min-h-screen bg-white text-slate-900">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <Link href="/">
             <Image src={oreoLogo} alt="Oreo Madness" width={oreoLogo.width} height={oreoLogo.height} className="mx-auto mb-2 h-auto w-auto max-h-32" priority />
           </Link>
           <h1 className="text-2xl font-bold text-orange-500">Set Official Bracket</h1>
-          <p className="text-slate-400 text-sm mt-1">Enter the actual winners as the competition progresses</p>
+          <p className="text-slate-600 text-sm mt-1">Enter the actual winners as the competition progresses</p>
           <div className="flex justify-center gap-4 mt-2">
             <Link href="/leaderboard" className="text-orange-500 hover:underline text-sm">Leaderboard</Link>
-            <button onClick={handleLogout} className="text-slate-400 hover:text-white text-sm">
+            <button onClick={handleLogout} className="text-slate-600 hover:text-slate-900 text-sm">
               Logout
             </button>
           </div>
         </div>
 
-        <div className="max-w-md mx-auto bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+        <div className="max-w-md mx-auto bg-slate-50 rounded-2xl p-6 border border-slate-200 shadow-lg">
           <div className="space-y-4">
             {[...Array(15)].map((_, i) => (
               <div key={i} className="flex items-center gap-3">
-                <label className="w-24 text-sm text-slate-400 shrink-0">{ROUND_LABELS[i]}</label>
+                <label className="w-24 text-sm text-slate-600 shrink-0">{ROUND_LABELS[i]}</label>
                 <select
                   value={officialResults[i] || ''}
                   onChange={(e) => setOfficialResults((prev) => ({ ...prev, [i]: parseInt(e.target.value, 10) }))}
-                  className="flex-1 px-4 py-2 rounded-xl bg-slate-700 border border-slate-600 focus:border-orange-500 focus:outline-none"
+                  className="flex-1 px-4 py-2 rounded-xl bg-white border border-slate-300 focus:border-orange-500 focus:outline-none text-slate-900"
                 >
                   <option value="">-- Pick winner --</option>
                   {oreos.map((o) => (
@@ -215,7 +215,7 @@ export default function AdminPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="mt-6 w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-600 rounded-xl font-bold transition"
+            className="mt-6 w-full py-3 bg-orange-500 hover:bg-orange-400 disabled:bg-slate-300 rounded-xl font-bold transition text-white disabled:text-slate-500"
           >
             {saving ? 'Saving...' : saved ? 'Saved to database ✓' : 'Save to Database'}
           </button>

@@ -1,4 +1,41 @@
 // Oreo data and bracket configuration
+import type { StaticImageData } from 'next/image'
+import classicImg from '@/logo/classic.png'
+import mintImg from '@/logo/mint.png'
+import thinsImg from '@/logo/thins.png'
+import goldenImg from '@/logo/golden.png'
+import birthdaycakeImg from '@/logo/birthdaycake.png'
+import peanutbutterImg from '@/logo/peanutbutter.png'
+import lemonImg from '@/logo/lemon.png'
+import reesesImg from '@/logo/reeses.png'
+import toffeecrunchImg from '@/logo/toffeecrunch.png'
+import darkchocolateImg from '@/logo/darkcholocate.png'
+import javachipImg from '@/logo/javachip.png'
+import marvelImg from '@/logo/marvel.png'
+import megastuffedImg from '@/logo/megastuffed.png'
+import easterImg from '@/logo/easter.png'
+import cookiedoughImg from '@/logo/cookiedough.png'
+import loadedImg from '@/logo/loaded.png'
+
+export const oreoImages: Record<number, StaticImageData> = {
+  1: classicImg,
+  2: mintImg,
+  3: thinsImg,
+  4: goldenImg,
+  5: birthdaycakeImg,
+  6: peanutbutterImg,
+  7: lemonImg,
+  8: reesesImg,
+  9: toffeecrunchImg,
+  10: darkchocolateImg,
+  11: javachipImg,
+  12: marvelImg,
+  13: megastuffedImg,
+  14: easterImg,
+  15: cookiedoughImg,
+  16: loadedImg,
+}
+
 export const oreos = [
   { id: 1, name: 'Classic', seed: 1 },
   { id: 2, name: 'Mint', seed: 8 },
@@ -37,4 +74,9 @@ export type Matchup = typeof matchups[number]
 // Get oreo by ID
 export function getOreoById(id: number): Oreo | undefined {
   return oreos.find(o => o.id === id)
+}
+
+// Get oreo image by ID
+export function getOreoImageById(id: number): StaticImageData | undefined {
+  return oreoImages[id]
 }

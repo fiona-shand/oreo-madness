@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { getOreoById } from '@/lib/oreos'
+import Image from 'next/image'
+import { getOreoById, getOreoImageById } from '@/lib/oreos'
 
 type Vote = {
   matchupIndex: number
@@ -55,9 +56,15 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
     return (wa && wb) ? [wa, wb] : [0, 0]
   }
 
-  const r16Done = votes.filter(v => v.matchupIndex < 8).length === 8
-  const qfDone = votes.filter(v => v.matchupIndex >= 8 && v.matchupIndex < 12).length === 4
-  const sfDone = votes.filter(v => v.matchupIndex >= 12 && v.matchupIndex < 14).length === 2
+  const hasPick = (idx: number) => getWinner(idx) != null
+  // Each matchup only requires its parent matchups (same side) to be done
+  const qf0Enabled = hasPick(0) && hasPick(1)
+  const qf1Enabled = hasPick(2) && hasPick(3)
+  const qf2Enabled = hasPick(4) && hasPick(5)
+  const qf3Enabled = hasPick(6) && hasPick(7)
+  const sf0Enabled = hasPick(8) && hasPick(9)
+  const sf1Enabled = hasPick(10) && hasPick(11)
+  const finalEnabled = hasPick(12) && hasPick(13)
 
   const handlePick = (winnerId: number) => {
     if (!selectedMatchup) return
@@ -77,10 +84,12 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
 
   const OreoLine = ({ id, isWinner }: { id: number | null; isWinner: boolean }) => {
     const o = id ? getOreoById(id) : null
+    const img = id ? getOreoImageById(id) : null
     if (!o) return <div className="text-slate-500 text-center">TBD</div>
     return (
-      <div className={`text-center ${isWinner ? 'text-orange-400 font-bold' : 'text-slate-300'}`}>
-        <span className="text-slate-500 font-medium">#{o.seed}</span> {o.name}
+      <div className={`flex items-center justify-center gap-2 ${isWinner ? 'text-orange-600 font-bold' : 'text-slate-700'}`}>
+        {img && <Image src={img} alt={o.name} width={24} height={24} className="rounded-[5px] object-cover shrink-0" />}
+        <span><span className="text-slate-500 font-medium">#{o.seed}</span> {o.name}</span>
       </div>
     )
   }
@@ -112,7 +121,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
         className={`
           ${boxWidth} p-4 rounded-2xl border text-sm leading-snug transition-all
           ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-          ${winner ? 'border-green-500 bg-green-500/20' : 'border-slate-600 bg-slate-800 hover:border-orange-500'}
+          ${winner ? 'border-green-500 bg-green-100' : 'border-slate-300 bg-white hover:border-orange-500'}
         `}
       >
         <div className="flex flex-col gap-1">
@@ -125,7 +134,7 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
   }
 
   const boxWidth = 'w-60 min-w-60'
-  const ConnectorV = () => <div className="w-10 shrink-0 border-r-2 border-slate-500 self-stretch" />
+  const ConnectorV = () => <div className="w-10 shrink-0 border-r-2 border-slate-300 self-stretch" />
   const bracketH = 760
   const rowGap = 'gap-12'
 
@@ -138,17 +147,18 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
             <div className={`flex flex-col justify-around ${rowGap}`} style={{ height: bracketH }}>
               {matchups.slice(0, 4).map((m, i) => (
                 <div key={i} className="h-28 flex items-center">
-                  <MatchupBox round="r16" idx={i} seed1={m.seed1} seed2={m.seed2} disabled={r16Done} />
+                  <MatchupBox round="r16" idx={i} seed1={m.seed1} seed2={m.seed2} />
                 </div>
               ))}
             </div>
             <ConnectorV />
             <div className={`flex flex-col justify-around pl-12 ${rowGap}`} style={{ height: bracketH }}>
               {[0, 1].map((i) => {
-                const [s1, s2] = r16Done ? getQFMatchup(i) : [0, 0]
+                const enabled = i === 0 ? qf0Enabled : qf1Enabled
+                const [s1, s2] = enabled ? getQFMatchup(i) : [0, 0]
                 return (
                   <div key={i} className="h-28 flex items-center">
-                    <MatchupBox round="qf" idx={i} seed1={s1} seed2={s2} disabled={!r16Done} />
+                    <MatchupBox round="qf" idx={i} seed1={s1} seed2={s2} disabled={!enabled} />
                   </div>
                 )
               })}
@@ -157,25 +167,25 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
             <div className={`flex flex-col justify-around pl-12 ${rowGap}`} style={{ height: bracketH }}>
               <div className="h-28 flex items-center">
                 {(() => {
-                  const [s1, s2] = qfDone ? getSFMatchup(0) : [0, 0]
-                  return <MatchupBox round="sf" idx={0} seed1={s1} seed2={s2} disabled={!qfDone} matchupIndex={12} />
+                  const [s1, s2] = sf0Enabled ? getSFMatchup(0) : [0, 0]
+                  return <MatchupBox round="sf" idx={0} seed1={s1} seed2={s2} disabled={!sf0Enabled} matchupIndex={12} />
                 })()}
               </div>
             </div>
           </div>
 
           {/* CENTER - Championship: 1 (left) vs 1 (right) */}
-          <div className="flex flex-col items-center justify-center px-12 shrink-0 border-x-2 border-slate-500 mx-16">
+          <div className="flex flex-col items-center justify-center px-12 shrink-0 border-x-2 border-slate-300 mx-16">
             <div className="h-28 flex items-center">
               {(() => {
-                const [s1, s2] = sfDone ? getFinalMatchup() : [0, 0]
+                const [s1, s2] = finalEnabled ? getFinalMatchup() : [0, 0]
                 return (
                   <MatchupBox
                     round="final"
                     idx={0}
                     seed1={s1}
                     seed2={s2}
-                    disabled={!sfDone}
+                    disabled={!finalEnabled}
                     matchupIndex={14}
                   />
                 )
@@ -187,26 +197,27 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
           <div className="flex items-center shrink-0 gap-0">
             <div className={`flex flex-col justify-center pr-12 ${rowGap}`} style={{ height: bracketH }}>
               {(() => {
-                const [s1, s2] = qfDone ? getSFMatchup(1) : [0, 0]
-                return <MatchupBox round="sf" idx={1} seed1={s1} seed2={s2} disabled={!qfDone} matchupIndex={13} />
+                const [s1, s2] = sf1Enabled ? getSFMatchup(1) : [0, 0]
+                return <MatchupBox round="sf" idx={1} seed1={s1} seed2={s2} disabled={!sf1Enabled} matchupIndex={13} />
               })()}
             </div>
-            <div className="w-10 shrink-0 border-l-2 border-slate-500 self-stretch" />
+            <div className="w-10 shrink-0 border-l-2 border-slate-300 self-stretch" />
             <div className={`flex flex-col justify-around pr-12 ${rowGap}`} style={{ height: bracketH }}>
               {[2, 3].map((i) => {
-                const [s1, s2] = r16Done ? getQFMatchup(i) : [0, 0]
+                const enabled = i === 2 ? qf2Enabled : qf3Enabled
+                const [s1, s2] = enabled ? getQFMatchup(i) : [0, 0]
                 return (
                   <div key={i} className="h-28 flex items-center">
-                    <MatchupBox round="qf" idx={i} seed1={s1} seed2={s2} disabled={!r16Done} />
+                    <MatchupBox round="qf" idx={i} seed1={s1} seed2={s2} disabled={!enabled} />
                   </div>
                 )
               })}
             </div>
-            <div className="w-10 shrink-0 border-l-2 border-slate-500 self-stretch" />
+            <div className="w-10 shrink-0 border-l-2 border-slate-300 self-stretch" />
             <div className={`flex flex-col justify-around ${rowGap}`} style={{ height: bracketH }}>
               {matchups.slice(4, 8).map((m, i) => (
                 <div key={i} className="h-28 flex items-center">
-                  <MatchupBox round="r16" idx={i + 4} seed1={m.seed1} seed2={m.seed2} disabled={r16Done} />
+                  <MatchupBox round="r16" idx={i + 4} seed1={m.seed1} seed2={m.seed2} />
                 </div>
               ))}
             </div>
@@ -216,39 +227,40 @@ export default function Bracket({ votes, onVoteChange }: BracketProps) {
 
       {/* Modal */}
       {selectedMatchup && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full border border-slate-700">
-            <h3 className="text-xl font-bold mb-2 text-center">{getModalTitle()}</h3>
-            <p className="text-slate-400 text-center mb-6">Who wins?</p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full border border-slate-200 shadow-xl">
+            <h3 className="text-xl font-bold mb-2 text-center text-slate-900">{getModalTitle()}</h3>
+            <p className="text-slate-600 text-center mb-6">Who wins?</p>
             <div className="flex gap-4">
               {[selectedMatchup.seed1, selectedMatchup.seed2].map((seed) => {
                 const oreo = getOreoById(seed)
+                const oreoImg = getOreoImageById(seed)
                 if (!oreo) return null
                 return (
                   <button
                     key={seed}
                     onClick={() => handlePick(oreo.id)}
-                    className="flex-1 p-6 rounded-2xl bg-slate-800 border-2 border-slate-600 hover:border-orange-500 transition-all text-center"
+                    className="flex-1 p-6 rounded-2xl bg-slate-50 border-2 border-slate-200 hover:border-orange-500 transition-all text-center flex flex-col items-center gap-3"
                   >
-                    <div className="text-slate-500 text-sm font-medium">#{oreo.seed}</div>
-                    <div className="text-lg font-bold">{oreo.name}</div>
+                    {oreoImg && <Image src={oreoImg} alt={oreo.name} width={80} height={80} className="rounded-[5px] object-cover" />}
+                    <div>
+                      <div className="text-slate-500 text-sm font-medium">#{oreo.seed}</div>
+                      <div className="text-lg font-bold text-slate-900">{oreo.name}</div>
+                    </div>
                   </button>
                 )
               })}
             </div>
-            <button onClick={() => setSelectedMatchup(null)} className="mt-6 w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition">
+            <button onClick={() => setSelectedMatchup(null)} className="mt-6 w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl transition">
               Cancel
             </button>
           </div>
         </div>
       )}
 
-      <div className="text-center mt-6 text-slate-400 text-sm">
+      <div className="text-center mt-6 text-slate-600 text-sm">
         Picks: {votes.length} / 15
-        {!r16Done && ' · Complete Round of 16 first!'}
-        {r16Done && !qfDone && ' · Pick Quarterfinals!'}
-        {qfDone && !sfDone && ' · Pick Semifinals!'}
-        {sfDone && votes.length < 15 && ' · Pick Champion!'}
+        {votes.length < 15 && ' · Complete matchups on each side to unlock the next round'}
       </div>
     </div>
   )
