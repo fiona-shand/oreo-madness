@@ -30,13 +30,13 @@ function verifyToken(token: string): boolean {
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json()
-  const adminPassword = process.env.ADMIN_PASSWORD
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim()
 
   if (!adminPassword) {
     return NextResponse.json({ error: 'Admin not configured' }, { status: 500 })
   }
 
-  if (password !== adminPassword) {
+  if (typeof password !== 'string' || password.trim() !== adminPassword) {
     return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
   }
 
